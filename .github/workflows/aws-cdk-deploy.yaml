@@ -16,13 +16,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: 'us-east-1'
+        
       - name: create zip of depenencies
         run: |
-          mkdir layer\python\
-          pip install -r .\requirements.txt -t .\layer\python\
-          zip -r ./layers/python.zip ./handler/python 
-          rm -r ./layer/python/
-          ls
+          mkdir python
+          # assuming your requirements file is in 'requirements/prod.txt'
+          pip install -r requirements/ -t python
+          echo building release $release_id
+          # zip it up
+          zip --quiet -r $release_id python
       - name: install dependencies and kick off cdk deploy
         run: |
           npm install -g cdk
