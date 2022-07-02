@@ -5,16 +5,18 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+import scrapy
+
 import mysql.connector
 
 
 class UfcFutureFightScraperPipeline:
     def __init__(self):
-        host = os.environ.get("DB_HOST")
-        user = os.environ.get("DB_USER")
-        password = os.environ.get("DB_PASSWORD")
-        database = os.environ.get("DB_DATABASE")
+        # temp DB creds that will be rotated out!!
+        host = 'uu1744jdr5e80dc.cdxfj1ghajls.us-east-1.rds.amazonaws.com'
+        user = 'mysqlAdmin'
+        password = '5bc,cx^h=H8KbdN3x.mSd95jMmZmwK'
+        database = 'thisisatest'
         if host != None and user != None and password != None and database != None:
             self.con = mysql.connector.connect(
                 host=host,
@@ -30,27 +32,65 @@ class UfcFutureFightScraperPipeline:
 
     def create_table(self):
         self.cur.execute(
-            """CREATE TABLE if not exists future_fights(id INT AUTO_INCREMENT PRIMARY KEY,
-            fighter_1 TEXT,
-            fighter_2 TEXT,
+            """CREATE TABLE if not exists future_matchups(id INT AUTO_INCREMENT PRIMARY KEY,
             date_ TEXT,
-            bout TEXT,
-            location_ TEXT,
-            event_name TEXT)"""
+            event_name TEXT,
+            rf TEXT,
+            bf TEXT,
+            rwins INT,
+            bwins INT,
+            rloses INT,
+            bloses INT,
+            rslpm FLOAT,
+            bslpm FLOAT,
+            rstrac FLOAT,
+            bstrac FLOAT,
+            rsapm FLOAT,
+            bsapm FLOAT,
+            rstrd FLOAT,
+            bstrd FLOAT,
+            rtdav FLOAT,
+            btdav FLOAT,
+            rtdac FLOAT,
+            btdac FLOAT,
+            rtdd FLOAT,
+            btdd FLOAT,
+            rsubav FLOAT,
+            bsubav FLOAT)"""
         )
 
     def process_item(self, item, spider):
         # skip db steps if there is no connection
         if self.con != None:
-            sql = """ INSERT IGNORE INTO future_fights (fighter_1,fighter_2,date_,bout,location_,event_name) VALUES (%s,%s,%s,%s,%s,%s)
+            sql = """
+            INSERT INTO future_matchups (date_,event_name,rf,bf,rwins,bwins,rloses,bloses,rslpm,bslpm,rstrac,bstrac,rsapm,bsapm,rstrd,bstrd,rtdav,btdav,rtdac,btdac,rtdd,btdd,rsubav,bsubav)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """
             val = (
-                item["fighter_1"],
-                item["fighter_2"],
                 item["date"],
-                item["bout"],
-                item["location"],
                 item["event_name"],
+                item["rf"],
+                item["bf"],
+                item["rwins"],
+                item["bwins"],
+                item["rloses"],
+                item["bloses"],
+                item["rslpm"],
+                item["bslpm"],
+                item["rstrac"],
+                item["bstrac"],
+                item["rsapm"],
+                item["bsapm"],
+                item["rstrd"],
+                item["bstrd"],
+                item["rtdav"],
+                item["btdav"],
+                item["rtdac"],
+                item["btdac"],
+                item["rtdd"],
+                item["btdd"],
+                item["rsubav"],
+                item["bsubav"],
             )
 
             self.cur.execute(sql, val)

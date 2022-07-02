@@ -1,5 +1,3 @@
-from inspect import BoundArguments
-from re import match
 import scrapy
 import numpy as np
 from scraper.util import *
@@ -10,9 +8,11 @@ class UfcFutureFightSpider(scrapy.Spider):
 
     name = "ufc_future_fights"
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
-    # custom_settings = {
-    #     "ITEM_PIPELINES": {
-    #         "ufc_stats_scraper.pipelines.UfcFutureFightScraperPipeline": 300,
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "scraper.pipelines.UfcFutureFightScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         future_event_links = response.css("a.b-link::attr(href)").getall()
@@ -40,7 +40,7 @@ class UfcFutureFightSpider(scrapy.Spider):
         return stats_array[slpm_index:]
 
     def parse_future_matchups(self, response, event_context):
-        date = event_context[0]
+        date = parse_date(event_context[0])
         location = event_context[1]
         event_name = normalize_results(
             response.css("h2.b-content__title a.b-link::text").getall()

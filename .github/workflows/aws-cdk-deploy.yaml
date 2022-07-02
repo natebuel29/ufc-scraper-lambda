@@ -1,0 +1,32 @@
+on:
+  push:
+
+jobs:
+  aws_cdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: 'us-east-1'
+      - name: create zip of depenencies
+        run: |
+          mkdir layer
+          pip install -r .\requirements.txt -t .\layer\python\
+          zip -r ./layers/python.zip ./handler/python 
+          rm -r ./layer/python/
+          ls
+      - name: install dependencies and kick off cdk deploy
+        run: |
+          npm install -g cdk
+          npm install
+          npm run build
+          cdk synth
+          cdk deploy --all --require-approval never
