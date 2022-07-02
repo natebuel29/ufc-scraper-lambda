@@ -12,25 +12,12 @@ class UfcScraperLambdaInfraStack(Stack):
     def __init__(self, app: App, id: str) -> None:
         super().__init__(app, id)
 
-        # create layer
-        layer = lambda_.LayerVersion(self, 'scrapy',
-                                     code=lambda_.Code.from_asset("layer"),
-                                     description='Scrapy layer',
-                                     compatible_runtimes=[
-                                         lambda_.Runtime.PYTHON_3_6,
-                                         lambda_.Runtime.PYTHON_3_7,
-                                         lambda_.Runtime.PYTHON_3_8
-                                     ],
-                                     removal_policy=RemovalPolicy.DESTROY
-                                     )
-
         lambdaFn = lambda_.Function(
             self, "UfcFutureFightLambda",
             code=lambda_.Code.from_asset("src"),
             handler="index.handler",
             timeout=Duration.seconds(300),
             runtime=lambda_.Runtime.PYTHON_3_8,
-            layers=[layer]
         )
 
         # Run every day at 6PM UTC
