@@ -18,7 +18,7 @@ jobs:
           aws-region: 'us-east-1'
       - name: create zip of depenencies
         run: |
-          mkdir layer
+          mkdir layer\python\
           pip install -r .\requirements.txt -t .\layer\python\
           zip -r ./layers/python.zip ./handler/python 
           rm -r ./layer/python/
