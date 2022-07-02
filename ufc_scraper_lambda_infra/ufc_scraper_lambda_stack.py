@@ -38,8 +38,8 @@ class UfcScraperLambdaInfraStack(Stack):
         rule = events.Rule(
             self, "Rule",
             schedule=events.Schedule.cron(
-                minute='22',
-                hour='2',
+                minute='20',
+                hour='3',
                 month='*',
                 week_day='MON-SAT',
                 year='*'),
