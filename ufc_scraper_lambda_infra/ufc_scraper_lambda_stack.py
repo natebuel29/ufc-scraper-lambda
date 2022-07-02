@@ -2,7 +2,8 @@ from aws_cdk import (
     aws_events as events,
     aws_lambda as lambda_,
     aws_events_targets as targets,
-    App, Duration, Stack
+    aws_iam as iam,
+    App, Duration, Stack, RemovalPolicy
 )
 
 
@@ -24,10 +25,17 @@ class UfcScraperLambdaInfraStack(Stack):
         rule = events.Rule(
             self, "Rule",
             schedule=events.Schedule.cron(
-                minute='0',
-                hour='19',
+                minute='20',
+                hour='3',
                 month='*',
                 week_day='MON-SAT',
                 year='*'),
         )
+
         rule.add_target(targets.LambdaFunction(lambdaFn))
+
+        getSecretPolicy = iam.PolicyStatement(
+            actions=["secretsmanager:GetSecretValue"], resources=["arn:aws:secretsmanager:*"])
+
+        lambdaFn.role.attach_inline_policy(iam.Policy(
+            self, "ufc-scraper-lambda-policy", statements=[getSecretPolicy]))
