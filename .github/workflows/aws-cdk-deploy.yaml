@@ -10,6 +10,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
       - name: Configure aws credentials
         uses: aws-actions/configure-aws-credentials@master
         with:
@@ -25,10 +28,14 @@ jobs:
           echo building release $release_id
           # zip it up
           zip --quiet -r python.zip python
+          rm -r python
+          mkdir layer
+          mv python.zip layer
           ls
       - name: install dependencies and kick off cdk deploy
         run: |
           ls
           npm install -g cdk
+          pip install -r requirements.txt
           cdk synth
           cdk deploy --all --require-approval never
