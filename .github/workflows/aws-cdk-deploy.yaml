@@ -25,10 +25,10 @@ jobs:
           echo building release $release_id
           # zip it up
           zip --quiet -r python.zip python
+          ls
       - name: install dependencies and kick off cdk deploy
         run: |
+          ls
           npm install -g cdk
-          npm install
-          npm run build
           cdk synth
           cdk deploy --all --require-approval never
