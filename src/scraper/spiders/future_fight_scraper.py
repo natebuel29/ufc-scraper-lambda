@@ -1,6 +1,6 @@
 import scrapy
 import numpy as np
-from scraper.util import *
+from src.scraper.util import *
 
 
 class UfcFutureFightSpider(scrapy.Spider):
@@ -10,11 +10,16 @@ class UfcFutureFightSpider(scrapy.Spider):
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
     custom_settings = {
         "ITEM_PIPELINES": {
-            "scraper.pipelines.UfcFutureFightScraperPipeline": 300,
-        }
+            "src.scraper.pipelines.UfcFutureFightScraperPipeline": 300,
+        },
+        "HTTPCACHE_ENABLED": True,
+        "HTTPCACHE_EXPIRATION_SECS": 60 * 60 * 24 * 7,
+        "HTTPCACHE_DIR": 'httpcache',
+        "CLOSESPIDER_PAGECOUNT": 32
     }
 
     def parse(self, response):
+        print("here")
         future_event_links = response.css("a.b-link::attr(href)").getall()
         yield from response.follow_all(future_event_links, self.parse_future_events)
 

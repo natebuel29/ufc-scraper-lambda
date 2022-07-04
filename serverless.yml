@@ -44,23 +44,26 @@ provider:
 #              - ""
 #              - - "arn:aws:s3:::"
 #                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
+              #  - "/*"
 
 # you can define service wide environment variables here
 #  environment:
 #    variable1: value1
 
 # you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.py'
-#    - '!exclude-me-dir/**'
-#    - include-me.py
-#    - include-me-dir/**
+package:
+ exclude:
+    - node_modules/**
+    - .venv/**
 
 functions:
   hello:
     handler: handler.hello
+  futureFightScrape:
+    handler: src/index.handler
+    timeout: 180
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer}
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -112,3 +115,14 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    fileName: requirements.txt
+    dockerizePip: non-linux
+    zip: true
+    layer: true
+    slim: true
