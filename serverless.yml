@@ -24,9 +24,9 @@ provider:
   name: aws
   runtime: python3.8
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+#you can overwrite defaults here
+ stage: dev
+ region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
 #  iam:
@@ -55,6 +55,17 @@ package:
  exclude:
     - node_modules/**
     - .venv/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    fileName: requirements.txt
+    dockerizePip: non-linux
+    zip: true
+    layer: true
+    slim: true
 
 functions:
   futureFightScrape:
