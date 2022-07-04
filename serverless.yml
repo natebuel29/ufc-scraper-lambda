@@ -57,13 +57,13 @@ package:
     - .venv/**
 
 functions:
-  hello:
-    handler: handler.hello
   futureFightScrape:
     handler: src/index.handler
     timeout: 180
     layers:
       - { Ref: PythonRequirementsLambdaLayer}
+    events:
+      - schedule: cron(0 6 ? * WED,FRI *)
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
