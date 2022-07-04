@@ -7,7 +7,6 @@ from src.scraper.spiders.future_fight_scraper import UfcFutureFightSpider
 
 
 def handler(event, context):
-    print("yooo")
     configure_logging()
     settings = get_project_settings()  # settings not required if running
     runner = CrawlerRunner(settings)  # from script, defaults provided

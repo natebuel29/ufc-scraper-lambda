@@ -11,11 +11,7 @@ class UfcFutureFightSpider(scrapy.Spider):
     custom_settings = {
         "ITEM_PIPELINES": {
             "src.scraper.pipelines.UfcFutureFightScraperPipeline": 300,
-        },
-        "HTTPCACHE_ENABLED": True,
-        "HTTPCACHE_EXPIRATION_SECS": 60 * 60 * 24 * 7,
-        "HTTPCACHE_DIR": 'httpcache',
-        "CLOSESPIDER_PAGECOUNT": 32
+        }
     }
 
     def parse(self, response):

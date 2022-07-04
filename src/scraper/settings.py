@@ -13,10 +13,13 @@ SPIDER_MODULES = ['scraper.spiders']
 NEWSPIDER_MODULE = 'scraper.spiders'
 
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 60 * 60 * 24 * 7
-HTTPCACHE_DIR = 'httpcache'
+HTTPCACHE_DIR = '/tmp'
+# LOG_ENABLED = True
 CLOSESPIDER_PAGECOUNT = 32
+FEED_FORMAT = 'json'
+FEED_URI = '/tmp/result.json'
 
+USER_AGENT = 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'scraper (+http://www.yourdomain.com)'

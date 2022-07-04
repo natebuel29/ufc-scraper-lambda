@@ -12,7 +12,6 @@ import mysql.connector
 
 class UfcFutureFightScraperPipeline:
     def __init__(self):
-        print("here in ufc future fight scraper pipeline")
         # temp DB creds that will be rotated out!!
         host = 'uu1744jdr5e80dc.cdxfj1ghajls.us-east-1.rds.amazonaws.com'
         user = 'mysqlAdmin'
