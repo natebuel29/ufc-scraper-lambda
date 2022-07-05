@@ -10,7 +10,7 @@ def handler(event, context):
     configure_logging()
     settings = get_project_settings()  # settings not required if running
     runner = CrawlerRunner(settings)  # from script, defaults provided
-    runner.crawl(UfcFutureFightSpider)  # your loop would go here
+    runner.crawl(UfcFutureFightSpider)
     d = runner.join()
     d.addBoth(lambda _: reactor.stop())
     reactor.run()

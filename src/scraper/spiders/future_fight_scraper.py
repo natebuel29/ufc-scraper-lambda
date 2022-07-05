@@ -5,7 +5,6 @@ from src.scraper.util import *
 
 class UfcFutureFightSpider(scrapy.Spider):
     SLPM_STRING = "Strikes Landed per Min. (SLpM)"
-
     name = "ufc_future_fights"
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
     custom_settings = {
@@ -15,7 +14,6 @@ class UfcFutureFightSpider(scrapy.Spider):
     }
 
     def parse(self, response):
-        print("here")
         future_event_links = response.css("a.b-link::attr(href)").getall()
         yield from response.follow_all(future_event_links, self.parse_future_events)
 
