@@ -1,16 +1,15 @@
 import scrapy
 import numpy as np
-from scraper.util import *
+from src.scraper.util import *
 
 
 class UfcFutureFightSpider(scrapy.Spider):
     SLPM_STRING = "Strikes Landed per Min. (SLpM)"
-
     name = "ufc_future_fights"
     start_urls = ["http://ufcstats.com/statistics/events/upcoming?page=all"]
     custom_settings = {
         "ITEM_PIPELINES": {
-            "scraper.pipelines.UfcFutureFightScraperPipeline": 300,
+            "src.scraper.pipelines.UfcFutureFightScraperPipeline": 300,
         }
     }
 
