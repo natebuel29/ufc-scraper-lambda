@@ -5,8 +5,7 @@
 
 
 # useful for handling different item types with a single interface
-import scrapy
-
+import hashlib
 import mysql.connector
 
 
@@ -32,7 +31,7 @@ class UfcFutureFightScraperPipeline:
 
     def create_table(self):
         self.cur.execute(
-            """CREATE TABLE if not exists future_matchups(id INT AUTO_INCREMENT PRIMARY KEY,
+            """CREATE TABLE if not exists future_matchups(fight_id varchar(64) PRIMARY KEY,
             date_ TEXT,
             event_name TEXT,
             rf TEXT,
@@ -63,10 +62,13 @@ class UfcFutureFightScraperPipeline:
         # skip db steps if there is no connection
         if self.con != None:
             sql = """
-            INSERT INTO future_matchups (date_,event_name,rf,bf,rwins,bwins,rloses,bloses,rslpm,bslpm,rstrac,bstrac,rsapm,bsapm,rstrd,bstrd,rtdav,btdav,rtdac,btdac,rtdd,btdd,rsubav,bsubav)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            INSERT IGNORE INTO future_matchups (fight_id,date_,event_name,rf,bf,rwins,bwins,rloses,bloses,rslpm,bslpm,rstrac,bstrac,rsapm,bsapm,rstrd,bstrd,rtdav,btdav,rtdac,btdac,rtdd,btdd,rsubav,bsubav)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """
             val = (
+                # .encode('ascii') converts the string to binary
+                hashlib.sha224(
+                    f"{item['rf']}+{item['bf']}+{item['rwins']}+{item['bwins']}".encode('ascii')).hexdigest(),
                 item["date"],
                 item["event_name"],
                 item["rf"],
