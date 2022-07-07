@@ -18,14 +18,21 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: '3.8'
-    - name: install serverless and serverless-python-requirements
-      run: |
-        npm install -g serverless
-        serverless plugin install -n serverless-python-requirements
-    - name: serverless deploy
-      uses: serverless/github-action@v3.1
+    # - name: install serverless and serverless-python-requirements
+    #   run: |
+    #     npm install -g serverless
+    #     serverless plugin install -n serverless-python-requirements
+    # - name: serverless deploy
+    #   uses: serverless/github-action@v3.1
+    #   with:
+    #     args: deploy
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY}}
+    - name: Serverless Deploy
+      uses: dhollerbach/actions.serverless-with-python-requirements@master
       with:
-        args: deploy
+        args: ''  # any deploy arguments you want to pass
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY}}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
