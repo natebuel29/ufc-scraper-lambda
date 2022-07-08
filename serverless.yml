@@ -69,7 +69,7 @@ custom:
 
 functions:
   futureFightScrape:
-    handler: src/index.handler
+    handler: src/handlers/future_fights.handler
     timeout: 180
     layers:
       - { Ref: PythonRequirementsLambdaLayer}
