@@ -14,7 +14,7 @@ NEWSPIDER_MODULE = 'scraper.spiders'
 
 HTTPCACHE_ENABLED = True
 HTTPCACHE_DIR = '/tmp'
-# LOG_ENABLED = True
+LOG_ENABLED = True
 CLOSESPIDER_PAGECOUNT = 32
 FEED_FORMAT = 'json'
 FEED_URI = '/tmp/result.json'

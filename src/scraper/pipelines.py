@@ -7,10 +7,12 @@
 # useful for handling different item types with a single interface
 import hashlib
 import mysql.connector
+import logging
 
 
 class UfcFutureFightScraperPipeline:
     def __init__(self):
+        logging.info("initializing UfcFutureFightScraperPipeline")
         # temp DB creds that will be rotated out!!
         host = 'uu1744jdr5e80dc.cdxfj1ghajls.us-east-1.rds.amazonaws.com'
         user = 'mysqlAdmin'
