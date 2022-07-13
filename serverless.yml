@@ -116,13 +116,184 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+ Resources:
+  UfcPredictorVpc:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: ufc-predictor-vpc
+  UfcPublicSubnetA:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref UfcPredictorVpc
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ''
+      CidrBlock: 10.0.0.0/17
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: 'subnet-name'
+          Value: UfcPublicSubnetA
+        - Key: 'subnet-type'
+          Value: Public
+        - Key: Name
+          Value: UfcPublicSubnetA
+  UfcPublicSubnetARouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref UfcPredictorVpc
+      Tags:
+        - Key: Name
+          Value: >-
+            UfcPublicSubnetARouteTable
+  UfcPublicSubnetARouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref UfcPublicSubnetARouteTable
+      SubnetId: !Ref UfcPublicSubnetA
+  UfcPublicSubnetADefaultRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref UfcPublicSubnetARouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref UfcPredictorVpcInternetGateway
+    DependsOn:
+      - UfcPredictorVpcInternetGateway
+
+  UfcPublicSubnetB:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref UfcPredictorVpc
+      AvailabilityZone: !Select 
+        - 1
+        - !GetAZs ''
+      CidrBlock: 10.0.128.0/17
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: 'subnet-name'
+          Value: UfcPublicSubnetB
+        - Key: 'subnet-type'
+          Value: Public
+        - Key: Name
+          Value: UfcPublicSubnetB
+
+  UfcPublicSubnetBRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref UfcPredictorVpc
+      Tags:
+        - Key: Name
+          Value: >-
+            UfcPublicSubnetBRouteTable
+   
+  UfcPublicSubnetBRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref UfcPublicSubnetBRouteTable
+      SubnetId: !Ref UfcPublicSubnetB
+
+  UfcPublicSubnetBDefaultRoute:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref UfcPublicSubnetBRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref UfcPredictorVpcInternetGateway
+    DependsOn:
+      - UfcPredictorVpcInternetGateway
+   
+  UfcPredictorVpcInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ufc-predictor-aws-infra/ufc-predictor-vpc
+
+  UfcPredictorVpcGatewayAttatchment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref UfcPredictorVpc
+      InternetGatewayId: !Ref UfcPredictorVpcInternetGateway
+      
+  UfcPredictorRDSSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security group for RDS instance
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: '-1'
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: 'from 0.0.0.0/0:3306'
+          FromPort: 3306
+          IpProtocol: tcp
+          ToPort: 3306
+      VpcId: !Ref UfcPredictorVpc
+   
+  UfcPredictorRDSSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: Subnet group for ufcfightpredictortest database
+      SubnetIds:
+        - !Ref UfcPublicSubnetA
+        - !Ref UfcPublicSubnetB
+  UfcPredictorRdsSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      GenerateSecretString:
+        ExcludeCharacters: ' %+~`#$&*()|[]{}:;<>?!''/@"\'
+        GenerateStringKey: password
+        PasswordLength: 30
+        SecretStringTemplate: '{"username":"mysqlAdmin"}'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  
+  UfcPredictorRdsSecretAttachment:
+    Type: 'AWS::SecretsManager::SecretTargetAttachment'
+    Properties:
+      SecretId: !Ref UfcPredictorRdsSecret
+      TargetId: !Ref UfcFightPredictorRdsInstance
+      TargetType: 'AWS::RDS::DBInstance'
+   
+  UfcFightPredictorRdsInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: '100'
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 0
+      CopyTagsToSnapshot: true
+      DBName: UfcPredictorRDSDb
+      DBSubnetGroupName: !Ref UfcPredictorRDSSubnetGroup
+      DeleteAutomatedBackups: true
+      DeletionProtection: false
+      Engine: mysql
+      EngineVersion: 8.0.19
+      MasterUsername: mysqlAdmin
+      MasterUserPassword: !Join 
+        - ''
+        - - '{{resolve:secretsmanager:'
+          - !Ref UfcPredictorRdsSecret
+          - ':SecretString:password::}}'
+      MaxAllocatedStorage: 105
+      MultiAZ: false
+      PubliclyAccessible: true
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !GetAtt 
+          - UfcPredictorRDSSG
+          - GroupId
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+Outputs:
+  TestDBEndpoint:
+    Value: !GetAtt 
+      - UfcFightPredictorRdsInstance
+      - Endpoint.Address
