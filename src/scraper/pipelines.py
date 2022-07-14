@@ -8,16 +8,28 @@
 import hashlib
 import mysql.connector
 import logging
+import boto3
+import json
 
 
 class UfcFutureFightScraperPipeline:
     def __init__(self):
         logging.info("initializing UfcFutureFightScraperPipeline")
-        # temp DB creds that will be rotated out!!
-        host = 'uu1744jdr5e80dc.cdxfj1ghajls.us-east-1.rds.amazonaws.com'
-        user = 'mysqlAdmin'
-        password = '5bc,cx^h=H8KbdN3x.mSd95jMmZmwK'
-        database = 'thisisatest'
+        # Create a Secrets Manager client
+        session = boto3.session.Session()
+        client = session.client(
+            service_name='secretsmanager',
+            region_name='us-east-1'
+        )
+        logging.info("Grabbing UfcPredictorRdsSecret secret")
+        secretMap = client.get_secret_value(
+            SecretId="UfcPredictorRdsSecret-extTBzicS2ON", VersionStage="AWSCURRENT")
+        rdsSecret = json.loads(secretMap.get("SecretString"))
+        logging.info("Successfully grabbed AWS secret")
+        host = rdsSecret.get("host")
+        user = rdsSecret.get("username")
+        password = rdsSecret.get("password")
+        database = rdsSecret.get("dbname")
         if host != None and user != None and password != None and database != None:
             self.con = mysql.connector.connect(
                 host=host,
