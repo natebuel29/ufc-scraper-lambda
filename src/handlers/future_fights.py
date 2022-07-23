@@ -7,6 +7,7 @@ import logging
 
 
 def handler(event, context):
+    logging.getLogger().setLevel(logging.INFO)
     logging.info(
         f"Kicking off {context.function_name} with Lambda Request ID {context.aws_request_id}")
     configure_logging()
