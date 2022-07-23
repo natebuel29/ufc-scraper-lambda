@@ -6,42 +6,16 @@
 
 # useful for handling different item types with a single interface
 import hashlib
-import mysql.connector
 import logging
-import boto3
-import json
+from src.db.mysql_connect import get_mysql_connection
 
 
 class UfcFutureFightScraperPipeline:
     def __init__(self):
         logging.info("initializing UfcFutureFightScraperPipeline")
-        # Create a Secrets Manager client
-        session = boto3.session.Session()
-        client = session.client(
-            service_name='secretsmanager',
-            region_name='us-east-1'
-        )
-        logging.info("Grabbing UfcPredictorRdsSecret secret")
-        secretMap = client.get_secret_value(
-            SecretId="UfcPredictorRdsSecret-extTBzicS2ON", VersionStage="AWSCURRENT")
-        rdsSecret = json.loads(secretMap.get("SecretString"))
-        logging.info("Successfully grabbed AWS secret")
-        host = rdsSecret.get("host")
-        user = rdsSecret.get("username")
-        password = rdsSecret.get("password")
-        database = rdsSecret.get("dbname")
-        if host != None and user != None and password != None and database != None:
-            self.con = mysql.connector.connect(
-                host=host,
-                user=user,
-                password=password,
-                database=database,
-            )
-            self.cur = self.con.cursor()
-            self.create_table()
-        else:
-            self.con = None
-            self.cur = None
+        self.con = get_mysql_connection()
+        self.cur = self.con.cursor()
+        self.create_table()
 
     def create_table(self):
         self.cur.execute(
