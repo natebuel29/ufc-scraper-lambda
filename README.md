@@ -4,10 +4,12 @@
  # Lambda Functions
  ### Future Fight Scraper
 
-The future fight scraper scraps data for future UFC events. This data will be **fed** to various ML models to predict UFC events. The scraper runs every Monday and Friday at 6:00 UTC.
+The future fight scraper scraps data for future UFC events. This data will be fed to various ML models to predict UFC events. The scraper runs every Monday and Friday at 6:00 UTC.
+
+### Future Fight Reaper
+
+The future fight reaper cleans up old UFC fights from the future_matchups database. The lambda function runs every Tuesday at 6:00 UTC
 
 ## PLANNED FUNCTIONS
-
-`Future Fight Reaper` - Cleans up past UFC events from future_matchups DB table
 
 `Previous Event Result Scraper` - Scraps and randomizes the previous UFC event and commits the data to the past_matchups DB table
