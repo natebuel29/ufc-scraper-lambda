@@ -10,6 +10,10 @@ The future fight scraper scraps data for future UFC events. This data will be fe
 
 The future fight reaper cleans up old UFC fights from the future_matchups database. The lambda function runs every Tuesday at 6:00 UTC
 
+### Refit Model Handler
+
+The lambda function refits the models for ufc-event-predictor. The lambda function runs every Tuesday at 8:00 UTC
+
 ## PLANNED FUNCTIONS
 
 `Previous Event Result Scraper` - Scraps and randomizes the previous UFC event and commits the data to the past_matchups DB table
