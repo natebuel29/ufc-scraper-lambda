@@ -68,7 +68,7 @@ functions:
     layers:
       - { Ref: PythonRequirementsLambdaLayer}
     events:
-      - schedule: cron(0 6 ? * TUES *)
+      - schedule: cron(0 8 ? * WED *)
   previousEventScraper:
     handler: src/handlers/previous_events.handler
     timeout: 180

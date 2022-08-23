@@ -12,15 +12,15 @@ import random
 class UfcPreviousEventScraper(scrapy.Spider):
     name = "ufc_previous_event"
     start_urls = ["http://ufcstats.com/statistics/events/completed"]
-    # custom_settings = {
-    #     "ITEM_PIPELINES": {
-    #         "src.scraper.pipelines.UfcFutureFightScraperPipeline": 300,
-    #     }
-    # }
+    custom_settings = {
+        "ITEM_PIPELINES": {
+            "src.scraper.pipelines.UfcPreviousEventScraperPipeline": 300,
+        }
+    }
 
     def parse(self, response):
         previous_event_link = response.css(
-            "tr.b-statistics__table-row a::attr(href)").getall()[0]
+            "tr.b-statistics__table-row a::attr(href)").getall()[1]
         print(previous_event_link)
         yield response.follow(previous_event_link, self.parse_previous_event)
 
@@ -59,11 +59,14 @@ class UfcPreviousEventScraper(scrapy.Spider):
             bf_index = [5, 7, 9, 11, 13, 15, 17, 19, 21, 23]
         results["rf"] = rf
         results["bf"] = bf
-        rf = fighter_results[0]
-        bf = fighter_results[1]
+
         winner_results = normalize_results(response.css(
             "section div.b-fight-details__person i.b-fight-details__person-status ::text").getall())
-        winner = 1 if winner_results[0] == "W" else 0
+        if winner_results[0] == "D":
+            return
+        else:
+            winner = 1 if winner_results[0] == "W" else 0
+            results["winner"] = winner
 
         con = get_mysql_connection()
         cur = con.cursor()
@@ -72,7 +75,6 @@ class UfcPreviousEventScraper(scrapy.Spider):
         cur.execute(sql)
 
         fight_stats = cur.fetchall()[0]
-        print(fight_stats)
 
         for i in range(0, len(r_labels)):
             r_label = r_labels[i]
@@ -85,4 +87,4 @@ class UfcPreviousEventScraper(scrapy.Spider):
             results[r_label] = r_value
             results[b_label] = b_value
 
-        print(results)
+        return results
