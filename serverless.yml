@@ -69,6 +69,13 @@ functions:
       - { Ref: PythonRequirementsLambdaLayer}
     events:
       - schedule: cron(0 6 ? * TUES *)
+  previousEventScraper:
+    handler: src/handlers/previous_events.handler
+    timeout: 180
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer}
+    events:
+      - schedule: cron(0 6 ? * MON *)
   refitModels:
     handler: src/handlers/refit_models.handler
     timeout: 180
