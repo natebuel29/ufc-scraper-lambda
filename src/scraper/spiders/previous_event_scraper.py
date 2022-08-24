@@ -1,12 +1,9 @@
-# response.css("tr.b-statistics__table-row a::attr(href)").getall()[2]
-#response.css("table.b-fight-details__table tbody tr::attr(data-link)").getall()
-# red fighter -> response.css("a.b-fight-details__person-link::attr(href)").getall()[0]
-# blue fighter -> response.css("a.b
 import scrapy
 import numpy as np
 from src.scraper.util import *
 from src.db.mysql_connect import get_mysql_connection
 import random
+import logging
 
 
 class UfcPreviousEventScraper(scrapy.Spider):
@@ -70,21 +67,25 @@ class UfcPreviousEventScraper(scrapy.Spider):
 
         con = get_mysql_connection()
         cur = con.cursor()
+        try:
+            sql = f"SELECT * FROM future_matchups where rf = '{rf}' AND bf='{bf}';"
+            cur.execute(sql)
 
-        sql = f"SELECT * FROM future_matchups where rf = '{rf}' AND bf='{bf}';"
-        cur.execute(sql)
+            fight_stats = cur.fetchall()[0]
 
-        fight_stats = cur.fetchall()[0]
+            for i in range(0, len(r_labels)):
+                r_label = r_labels[i]
+                r_i = rf_index[i]
+                r_value = fight_stats[r_i]
+                b_label = b_labels[i]
+                b_i = bf_index[i]
+                b_value = fight_stats[b_i]
 
-        for i in range(0, len(r_labels)):
-            r_label = r_labels[i]
-            r_i = rf_index[i]
-            r_value = fight_stats[r_i]
-            b_label = b_labels[i]
-            b_i = bf_index[i]
-            b_value = fight_stats[b_i]
-
-            results[r_label] = r_value
-            results[b_label] = b_value
+                results[r_label] = r_value
+                results[b_label] = b_value
+        except:
+            logging.error(
+                "Failed to scrap previous event - perhaps there wasn't an event last week")
+            return
 
         return results
