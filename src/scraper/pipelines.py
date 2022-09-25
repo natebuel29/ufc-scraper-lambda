@@ -20,6 +20,7 @@ class UfcFutureFightScraperPipeline:
     def create_table(self):
         self.cur.execute(
             """CREATE TABLE if not exists future_matchups(fight_id varchar(64) PRIMARY KEY,
+            fight_order INT,
             date_ TEXT,
             event_name TEXT,
             rf TEXT,
@@ -50,13 +51,14 @@ class UfcFutureFightScraperPipeline:
         # skip db steps if there is no connection
         if self.con != None:
             sql = """
-            REPLACE INTO future_matchups (fight_id,date_,event_name,rf,bf,rwins,bwins,rloses,bloses,rslpm,bslpm,rstrac,bstrac,rsapm,bsapm,rstrd,bstrd,rtdav,btdav,rtdac,btdac,rtdd,btdd,rsubav,bsubav)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            REPLACE INTO future_matchups (fight_id, fight_order, date_,event_name,rf,bf,rwins,bwins,rloses,bloses,rslpm,bslpm,rstrac,bstrac,rsapm,bsapm,rstrd,bstrd,rtdav,btdav,rtdac,btdac,rtdd,btdd,rsubav,bsubav)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             """
             val = (
                 # .encode('ascii') converts the string to binary
                 hashlib.sha224(
                     f"{item['rf']}+{item['bf']}+{item['rwins']}+{item['bwins']}".encode('ascii')).hexdigest(),
+                item["fight_order"],
                 item["date"],
                 item["event_name"],
                 item["rf"],

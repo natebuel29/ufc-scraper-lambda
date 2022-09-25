@@ -22,11 +22,11 @@ class UfcFutureFightSpider(scrapy.Spider):
         event_context = normalize_results(
             response.css("li.b-list__box-list-item::text").getall()
         )
-        yield from response.follow_all(
-            future_matchups,
-            self.parse_future_matchups,
-            cb_kwargs={"event_context": event_context},
-        )
+
+        for i in range(len(future_matchups)):
+            future_matchup = future_matchups[i]
+            yield scrapy.Request(future_matchup, callback=self.parse_future_matchups, cb_kwargs={
+                "event_context": event_context, "fight_order": i})
 
     def trim_stats_array(self, stats_array):
         slpm_index = None
@@ -38,7 +38,7 @@ class UfcFutureFightSpider(scrapy.Spider):
 
         return stats_array[slpm_index:]
 
-    def parse_future_matchups(self, response, event_context):
+    def parse_future_matchups(self, response, event_context, fight_order):
         date = parse_date(event_context[0])
         location = event_context[1]
         event_name = normalize_results(
@@ -98,6 +98,7 @@ class UfcFutureFightSpider(scrapy.Spider):
         )[0]
 
         yield {
+            "fight_order": fight_order,
             "rf": rf,
             "bf": bf,
             "date": date,
